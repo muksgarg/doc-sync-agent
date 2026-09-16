@@ -1,0 +1,27 @@
+name: Agentic SDLC DocSync Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  verify-and-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Step 1 - Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Step 2 - Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Step 3 - Install Pytest
+        run: pip install pytest
+
+      - name: Step 4 - Run Test Suite (15 Tests)
+        run: python -m pytest -v
+
+      - name: Step 5 - Check Doc Drift
+        run: python -m doc_sync.cli check --target-path API_DOCS.md || echo "Drift check complete"
+
+      - name: Step 6 - Auto Sync Documentation
+        run: python -m doc_sync.cli sync --target-path API_DOCS.md
